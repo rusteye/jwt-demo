@@ -1,4 +1,5 @@
 package com.rusteye.jwtdemo;
+
 import java.io.IOException;
 
 import javax.servlet.FilterChain;
@@ -15,33 +16,31 @@ import io.jsonwebtoken.SignatureException;
 
 public class JwtFilter extends GenericFilterBean {
 
-    @Override
-    public void doFilter(final ServletRequest req,
-                         final ServletResponse res,
-                         final FilterChain chain) throws IOException, ServletException {
-        final HttpServletRequest request = (HttpServletRequest) req;
+	@Override
+	public void doFilter(final ServletRequest req, final ServletResponse res, final FilterChain chain)
+			throws IOException, ServletException {
+		final HttpServletRequest request = (HttpServletRequest) req;
 
-        //客户端将token封装在请求头中，格式为（Bearer后加空格）：Authorization：Bearer +token
-        final String authHeader = request.getHeader("Authorization");
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            throw new ServletException("Missing or invalid Authorization header.");
-        }
+		// 客户端将token封装在请求头中，格式为（Bearer后加空格）：Authorization：Bearer +token
+		final String authHeader = request.getHeader("Authorization");
+		if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+			throw new ServletException("Missing or invalid Authorization header.");
+		}
 
-        //去除Bearer 后部分
-        final String token = authHeader.substring(7);
+		// 去除"Bearer "以后剩下的部分
+		final String token = authHeader.substring(7);
 
-        try {
-            //解密token，拿到里面的对象claims
-            final Claims claims = Jwts.parser().setSigningKey("secretkey")
-                .parseClaimsJws(token).getBody();
-            //将对象传递给下一个请求
-            request.setAttribute("claims", claims);
-        }
-        catch (final SignatureException e) {
-            throw new ServletException("Invalid token.");
-        }
+		try {
+			// 解密token，拿到里面的对象claims
+			final Claims claims = Jwts.parser().setSigningKey("secretkey")
+	                .parseClaimsJws(token).getBody();
+			// 将对象传递给下一个请求
+			request.setAttribute("claims", claims);
+		} catch (final SignatureException e) {
+			throw new ServletException("Invalid token.");
+		}
 
-        chain.doFilter(req, res);
-    }
+		chain.doFilter(req, res);
+	}
 
 }

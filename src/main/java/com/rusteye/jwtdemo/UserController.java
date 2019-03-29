@@ -1,63 +1,41 @@
 package com.rusteye.jwtdemo;
 
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import javax.servlet.ServletException;
 
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
-
 @RestController
 @RequestMapping("/user")
 public class UserController {
 
-    private final Map<String, List<String>> userDb = new HashMap<>();
-
-    @SuppressWarnings("unused")
-    private static class UserLogin {
-        public String name;
-        public String password;
+	@Autowired
+	private JwtUtil jwtUtil;
+	
+	// 模拟从数据库里取出来的数据
+    private static List<User> userList = new ArrayList<>();
+    
+    static {
+    	User user = new User();
+    	user.setUsername("swy");
+    	userList.add(user);
     }
-
-    public UserController() {
-        userDb.put("tom", Arrays.asList("user"));
-        userDb.put("wen", Arrays.asList("user", "admin"));
-    }
+    
 
     @RequestMapping(value = "login", method = RequestMethod.POST)
-    public LoginResponse login(@RequestBody final UserLogin login)
-        throws ServletException {
-        if (login.name == null || !userDb.containsKey(login.name)) {
+    public String login(@RequestBody User user) throws ServletException {
+    	String username = user.getUsername();
+        if (username == null || !"swy".equals(username)) {
             throw new ServletException("Invalid login");
         }
 
-        //加密生成token
-        return new LoginResponse(Jwts.builder().setSubject(login.name)
-            .claim("roles", userDb.get(login.name)).setIssuedAt(new Date())
-            .signWith(SignatureAlgorithm.HS256, "secretkey").compact());
+        return jwtUtil.createToken("user", "admin");
     }
 
-    @SuppressWarnings("unused")
-    private static class LoginResponse {
-        public String token;
-
-        public LoginResponse(final String token) {
-            this.token = token;
-        }
-    }
-    
-    @PostMapping("test")
-    public String test() throws ServletException {
-        return "test success";
-    }
 }

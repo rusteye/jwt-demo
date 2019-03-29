@@ -2,8 +2,11 @@ package com.rusteye.jwtdemo;
 
 import javax.persistence.*;
 
+import lombok.ToString;
+
 @Entity
 @Table(name = "tb_user")
+@ToString
 public class User {
 
     @Id

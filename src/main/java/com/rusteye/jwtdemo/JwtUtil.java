@@ -5,12 +5,14 @@ import io.jsonwebtoken.JwtBuilder;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 import javax.crypto.spec.SecretKeySpec;
 import javax.xml.bind.DatatypeConverter;
 import java.security.Key;
 import java.util.Date;
 
+@Component
 public class JwtUtil {
 
 	@Value("${jwt.expiration}")
@@ -54,7 +56,6 @@ public class JwtUtil {
 		// 添加构成JWT的参数
 		JwtBuilder builder = Jwts.builder().setHeaderParam("typ", "JWT").setIssuer(issuer).setAudience(audience)
 				.signWith(signatureAlgorithm, signingKey);
-
 		// 添加Token签发时间
 		builder.setIssuedAt(now);
 		// 添加Token过期时间
